@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, createSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getBadge from '../badge';
+import getstatus from '../status';
+import Paginate from 'src/components/Paginate';
 
 const RoleList = () => {
 
@@ -16,6 +19,12 @@ const RoleList = () => {
 
   const [role, setRole] = useState([])
 
+  const [page, setPage] = useState({
+    current_page: 0,
+    total_items: 0,
+    total_pages: 0,
+})
+
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
 
   useEffect(() => {
@@ -23,15 +32,14 @@ const RoleList = () => {
       navigate('/login');
       window.location.reload();
     }
-    fetchRoleList();
+    fetchRoleList(true, 0);
   }, [isLoggedIn]);
 
-  const fetchRoleList = () => {
-    return userService.getRoles().then(
+  const fetchRoleList = (paginated, page_number) => {
+    return userService.getRoles(paginated, page_number).then(
       (data) => {
-        console.log(data.data.response_data);
-        //addToast(ToastMessage(data.data.response_message, 'primary'))
         setRole(data.data.response_data);
+        setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
       },
       (error) => {
         console.log(error)
@@ -100,10 +108,6 @@ const RoleList = () => {
       label: 'Role Code',
     },
     {
-      key: 'permission',
-      label: 'Role Permisison',
-    },
-    {
       key: 'description',
       label: 'Description',
     },
@@ -117,36 +121,19 @@ const RoleList = () => {
     },
   ]
 
-
-  const getBadge = (status) => {
-    switch (status) {
-      case 1:
-        return 'success'
-      case 2:
-        return 'secondary'
-      case 3:
-        return 'warning'
-      case 4:
-        return 'danger'
-      default:
-        return 'primary'
+  const handlePaginate = (page_number) => {
+    if (page_number < 0 || page_number >= page.total_pages) {
+        addToast(ToastMessage("Page Not Availble", 'danger'));
+    } else {
+        return fetchRoleList(true, page_number);
     }
-  }
+}
 
-  const getstatus = (status) => {
-    switch (status) {
-      case 1:
-        return 'Active'
-      case 2:
-        return 'Inactive'
-      case 3:
-        return 'Pending'
-      case 4:
-        return 'Banned'
-      default:
-        return 'primary'
+const paginateRender = () => {
+    if (role.length > 0) {
+        return (<Paginate data={role} page={page} handle={handlePaginate}/>);
     }
-  };
+}
 
 
   return (
@@ -169,10 +156,9 @@ const RoleList = () => {
           {role.map((val, key) => {
             return (
               <CTableRow key={key}>
-                <CTableDataCell>{key + 1}</CTableDataCell>
+                <CTableDataCell>{(page.current_page) * Math.ceil(page.total_items / page.total_pages) + (key + 1)}</CTableDataCell>
                 <CTableDataCell>{val.role_name}</CTableDataCell>
                 <CTableDataCell>{val.role_code}</CTableDataCell>
-                {/* <CTableDataCell>{getPermission(val.permissions)}</CTableDataCell> */}
                 <CTableDataCell>{val.description}</CTableDataCell>
                 <CTableDataCell>
                   <CBadge color={getBadge(val.status)}>{getstatus(val.status)}</CBadge>
@@ -189,8 +175,8 @@ const RoleList = () => {
             )
           })}
         </CTableBody>
-
       </CTable>
+      {paginateRender()}
     </>
   )
 

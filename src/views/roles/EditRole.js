@@ -1,10 +1,11 @@
-import { CForm, CCol, CFormInput, CButton, CToaster, CFormCheck } from '@coreui/react';
+import { CForm, CCol, CFormInput, CButton, CToaster, CFormCheck, CFormSelect } from '@coreui/react';
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getstatus from '../status';
 
 const RoleEdit = () => {
     const [toast, addToast] = useState(0)
@@ -25,6 +26,7 @@ const RoleEdit = () => {
         role_name: "",
         role_code: "",
         description: "",
+        status: "",
         permissions: [],
     });
 
@@ -37,10 +39,11 @@ const RoleEdit = () => {
             navigate('/login');
             window.location.reload();
         }
+
         if (isEdit) {
             getRole();
         }else{
-            getAllPermisison().then((permissionList) => {
+            getAllPermisison(false, 0).then((permissionList) => {
                 setPermission(permissionList);
             });
         }
@@ -52,7 +55,7 @@ const RoleEdit = () => {
                 console.log(data.data.response_data);
                 setRole(data.data.response_data);
                 setSelectedIds(data.data.response_data.permissions.map(s => s.id));
-                getAllPermisison().then((permissionList) => {
+                getAllPermisison(false, 0).then((permissionList) => {
                     setPermission(permissionList);
                 });
             },
@@ -66,8 +69,8 @@ const RoleEdit = () => {
         );
     };
 
-    const getAllPermisison = () => {
-        return userService.getPermisisons().then(
+    const getAllPermisison = (paginated, page_number) => {
+        return userService.getPermisisons(paginated, page_number).then(
             (data) => {
                 console.log(data.data.response_data);
                 return data.data.response_data;
@@ -84,7 +87,7 @@ const RoleEdit = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const data = { "role_name": role.role_name, "role_code": role.role_code, "description": role.description, "permission_id": selectedIds };
+        const data = { "role_name": role.role_name, "role_code": role.role_code, "description": role.description, "status": role.status, "permission_id": selectedIds };
         if (isEdit) {
             return userService.editRole(id, data).then(
                 (data) => {
@@ -129,6 +132,10 @@ const RoleEdit = () => {
         setRole({ ...role, description: e.target.value, });
     };
 
+    const onChangeStatus = (e) => {
+        setRole({ ...role, status: e.target.value, });
+    };
+
 
     const handleCheckboxChange = (event) => {
         const checkedId = parseInt(event.target.value);
@@ -160,6 +167,13 @@ const RoleEdit = () => {
                 </CCol>
                 <CCol xs={12}>
                     <CFormInput id="description" label="Desciption" placeholder="Add some more details" onChange={onChangeDescription} value={role.description} />
+                </CCol>
+                <CCol xs={12}>
+                    <CFormSelect label="Status" className="mb-3" onChange={onChangeStatus} value={role.status}>
+                        <option value={""} key="">Select Status</option>
+                        <option value={0} key="status_0">{getstatus(0)} </option>
+                        <option value={1} key="status_1">{getstatus(1)} </option>
+                    </CFormSelect>
                 </CCol>
                 <CCol xs={12}>
                     <CFormCheck label="ALL" checked={selectedIds.length == permission.length} onChange={(event) => { handleMultipleCheckboxChange(event) }} />

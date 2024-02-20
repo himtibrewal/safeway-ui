@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, createSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import Paginate from 'src/components/Paginate';
+import getBadge from '../badge';
+import getstatus from '../status';
 
 const UserList = () => {
 
@@ -16,6 +19,12 @@ const UserList = () => {
 
   const [user, setUser] = useState([])
 
+  const [page, setPage] = useState({
+    current_page: 0,
+    total_items: 0,
+    total_pages: 0,
+  })
+
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
 
   useEffect(() => {
@@ -23,14 +32,15 @@ const UserList = () => {
       navigate('/login');
       window.location.reload();
     }
-    fetchUserList();
+    fetchUserList(true, page.current_page);
   }, [isLoggedIn]);
 
-  const fetchUserList = () => {
-    return userService.getusers().then(
+  const fetchUserList = (paginated, current_page) => {
+    return userService.getusers(paginated, current_page).then(
       (data) => {
         console.log(data.data.response_data);
         setUser(data.data.response_data);
+        setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
       },
       (error) => {
         console.log(error)
@@ -116,36 +126,19 @@ const UserList = () => {
     },
   ]
 
-
-  const getBadge = (status) => {
-    switch (status) {
-      case 1:
-        return 'success'
-      case 2:
-        return 'secondary'
-      case 3:
-        return 'warning'
-      case 4:
-        return 'danger'
-      default:
-        return 'primary'
+  const handlePaginate = (page_number) => {
+    if (page_number < 0 || page_number >= page.total_pages) {
+      addToast(ToastMessage("Page Not Availble", 'danger'));
+    } else {
+      return fetchUserList(true, page_number);
     }
   }
 
-  const getstatus = (status) => {
-    switch (status) {
-      case 1:
-        return 'Active'
-      case 2:
-        return 'Inactive'
-      case 3:
-        return 'Pending'
-      case 4:
-        return 'Banned'
-      default:
-        return 'primary'
+  const paginateRender = () => {
+    if (user.length > 0) {
+      return (<Paginate data={user} page={page} handle={handlePaginate} />);
     }
-  };
+  }
 
   const getroles = (value) => {
     //let arr = [...value];   //creating the copy
@@ -174,7 +167,7 @@ const UserList = () => {
           {user.map((val, key) => {
             return (
               <CTableRow key={key}>
-                <CTableDataCell>{key + 1}</CTableDataCell>
+                <CTableDataCell>{(page.current_page) * Math.ceil(page.total_items / page.total_pages) + (key + 1)}</CTableDataCell>
                 <CTableDataCell>{val.username}</CTableDataCell>
                 <CTableDataCell>{val.email}</CTableDataCell>
                 <CTableDataCell>{val.mobile}</CTableDataCell>
@@ -194,8 +187,8 @@ const UserList = () => {
             )
           })}
         </CTableBody>
-
       </CTable>
+      {paginateRender()}
     </>
   )
 

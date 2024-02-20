@@ -173,7 +173,7 @@ const StateList = () => {
 
     const paginateRender = () => {
         if (state.length > 0) {
-            return (<Paginate data={country} page={page} handle={handlePaginate}/>);
+            return (<Paginate data={state} page={page} handle={handlePaginate}/>);
         }
     }
 

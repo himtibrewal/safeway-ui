@@ -31,8 +31,8 @@ const CityEdit = () => {
         district_code: "",
         district_abbr: "",
         status: "",
-        state_id: "",
-        country_id: ""
+        state_id: 0,
+        country_id: 0
     });
 
     const [country, setCountry] = useState([]);
@@ -55,6 +55,7 @@ const CityEdit = () => {
             (data) => {
                 console.log(data.data.response_data);
                 setDistrict(data.data.response_data);
+                getAllState(false, 0, data.data.response_data.country_id);
             },
             (error) => {
                 console.log(error)
@@ -66,11 +67,10 @@ const CityEdit = () => {
         );
     };
 
-    const getAllState = () => {
-        return userService.getStates(false, 0, district.country_id).then(
+    const getAllState = (paginated, page_number, country_id) => {
+        return userService.getStates(paginated, page_number, country_id).then(
             (data) => {
-                console.log(data.data.response_data);
-                setState(data.data.response_data);
+                setState(data.data.response_data.filter(v => v.status == 1));
             },
             (error) => {
                 console.log(error)
@@ -86,7 +86,7 @@ const CityEdit = () => {
         return userService.getCountries(false, 0).then(
             (data) => {
                 console.log(data.data.response_data);
-                setCountry(data.data.response_data);
+                setCountry(data.data.response_data.filter(v => v.status == 1));
             },
             (error) => {
                 console.log(error)
@@ -104,7 +104,7 @@ const CityEdit = () => {
         if (district.district_name == null || district.district_name.length < 1) {
             addToast(ToastMessage("Plese Enter District Name", 'danger'))
         } else if (district.state_id == null || district.state_id < 1) {
-            addToast(ToastMessage("Please Select Statex", 'danger'))
+            addToast(ToastMessage("Please Select State", 'danger'))
         } else {
             const data = { "district_name": district.district_name, "district_code": district.district_code, "district_abbr": district.district_abbr, "status": district.status };
             if (isEdit) {
@@ -161,12 +161,12 @@ const CityEdit = () => {
     };
 
     const onChangeCountry = (e) => {
-        setDistrict({ ...district, country_id: e.target.value, });
+        setDistrict({...district, country_id: e.target.value});
         console.log(district);
-        if(district.country_id > 0){
-            getAllState();
+        if(e.target.value > 0){
+            console.log(e.target.value);
+            getAllState(false, 0, e.target.value);
         }
-       
     };
 
 

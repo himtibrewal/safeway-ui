@@ -7,6 +7,7 @@ import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
 import getBadge from '../badge';
 import getstatus from '../status';
+import Paginate from 'src/components/Paginate';
 
 const DistrictList = () => {
 
@@ -32,6 +33,12 @@ const DistrictList = () => {
 
     const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
 
+    const [page, setPage] = useState({
+        current_page: 0,
+        total_items: 0,
+        total_pages: 0,
+    })
+
     useEffect(() => {
         if (isLoggedIn === false) {
             navigate('/login');
@@ -44,7 +51,7 @@ const DistrictList = () => {
         return userService.getCountries(false, 0).then(
             (data) => {
                 console.log(data.data.response_data);
-                setCountry(data.data.response_data);
+                setCountry(data.data.response_data.filter(v => v.status == 1));
             },
             (error) => {
                 console.log(error)
@@ -70,17 +77,17 @@ const DistrictList = () => {
         if (countryId > 0) {
             setState([]);
             setDistrict([]);
-            fetchStateList(e.target.value);
+            fetchStateList(false, 0, countryId);
         } else {
             addToast(ToastMessage("Please Select Country", 'danger'));
         }
     };
 
-    const fetchStateList = (countryId) => {
-        return userService.getStates(false, 0, countryId).then(
+    const fetchStateList = (paginated, page_number, countryId) => {
+        return userService.getStates(paginated, page_number, countryId).then(
             (data) => {
                 console.log(data.data.response_data);
-                setState(data.data.response_data);
+                setState(data.data.response_data.filter(v => v.status == 1));
             },
             (error) => {
                 console.log(error)
@@ -105,17 +112,18 @@ const DistrictList = () => {
         setStateNameSelected(state_name);
         if (stateId > 0) {
             setDistrict([]);
-            fetchDistrictList(stateId);
+            fetchDistrictList(true, 0, stateId);
         } else {
             addToast(ToastMessage("Please Select State", 'danger'));
         }
     };
 
-    const fetchDistrictList = (stateId) => {
-        return userService.getDistricts(true, 0, stateId).then(
+    const fetchDistrictList = (paginated, current_page, stateId) => {
+        return userService.getDistricts(paginated, current_page, stateId).then(
             (data) => {
                 console.log(data.data.response_data);
                 setDistrict(data.data.response_data);
+                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
             },
             (error) => {
                 console.log(error)
@@ -144,15 +152,7 @@ const DistrictList = () => {
         );
     };
 
-   
-
-    
-
-    
-
-
-    
-
+       
     const handleAdd = () => {
         navigate(
             {
@@ -205,6 +205,19 @@ const DistrictList = () => {
         },
     ];
 
+    const handlePaginate = (page_number) => {
+        if (page_number < 0 || page_number >= page.total_pages) {
+            addToast(ToastMessage("Page Not Availble", 'danger'));
+        } else {
+            return fetchDistrictList(true, page_number, stateSelected);
+        }
+    }
+
+    const paginateRender = () => {
+        if (district.length > 0) {
+            return (<Paginate data={district} page={page} handle={handlePaginate}/>);
+        }
+    }
 
     return (
         <>
@@ -216,7 +229,7 @@ const DistrictList = () => {
                             if (key == 0) {
                                 return (
                                     <CTableHeaderCell key="select_country">
-                                        <CFormSelect label="" className="mb-3" onChange={onChangeCountry}>
+                                        <CFormSelect label="" className="mb-3" onChange={onChangeCountry} defaultValue={countrySelected}>
                                             <option value={0} key="">Select Country</option>
                                             {country.map((val, key) => {
                                                 return (<option value={val.id} key={key}>{val.country_name}</option>)
@@ -229,7 +242,7 @@ const DistrictList = () => {
                             if (key == 1 && state.length > 0) {
                                 return (
                                     <CTableHeaderCell key="select_state">
-                                        <CFormSelect label="" className="mb-3" onChange={onChangeState}>
+                                        <CFormSelect label="" className="mb-3" onChange={onChangeState} defaultValue={stateSelected}>
                                             <option value={0} key="">Select State</option>
                                             {state.map((val, key) => {
                                                 return (<option value={val.id} key={key}>{val.state_name}</option>)
@@ -282,8 +295,8 @@ const DistrictList = () => {
                         )
                     })}
                 </CTableBody>
-
             </CTable>
+            {paginateRender()}
         </>
     )
 }

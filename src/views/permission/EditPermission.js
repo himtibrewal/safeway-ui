@@ -1,10 +1,11 @@
-import { CForm, CCol, CFormInput, CButton, CToaster } from '@coreui/react';
+import { CForm, CCol, CFormInput, CButton, CToaster, CFormSelect} from '@coreui/react';
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getstatus from '../status';
 
 const PermissionEdit = () => {
     const [toast, addToast] = useState(0)
@@ -29,6 +30,7 @@ const PermissionEdit = () => {
         permission_name: "",
         permission_code: "",
         description: "",
+        status:"",
     });
 
     useEffect(() => {
@@ -61,7 +63,7 @@ const PermissionEdit = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const data = { "permission_name": permission.permission_name, "permission_code": permission.permission_code, "description": permission.description };
+        const data = { "permission_name": permission.permission_name, "permission_code": permission.permission_code, "description": permission.description, "status": permission.status};
         if (isEdit) {
             return userService.editPermisison(id, data).then(
                 (data) => {
@@ -106,6 +108,10 @@ const PermissionEdit = () => {
         setPermission({ ...permission, description: e.target.value, });
     };
 
+    const onChangeStatus = (e) => {
+        setPermission({ ...permission, status: e.target.value, });
+    };
+
     return (
         <>
             <CForm className="row g-3" onSubmit={handleSubmit}>
@@ -118,6 +124,13 @@ const PermissionEdit = () => {
                 </CCol>
                 <CCol xs={12}>
                     <CFormInput id="description" type="text" label="Desciption" placeholder="Add some more details" onChange={onChangeDescription} value={permission.description} />
+                </CCol>
+                <CCol xs={12}>
+                    <CFormSelect label="Status" className="mb-3" onChange={onChangeStatus} value={permission.status}>
+                        <option value={""} key="">Select Status</option>
+                        <option value={0} key="status_0">{getstatus(0)} </option>
+                        <option value={1} key="status_1">{getstatus(1)} </option>
+                    </CFormSelect>
                 </CCol>
                 <CCol xs={12}>
                     <CButton type="submit" color="success" variant="outline" className="me-2">{isEdit ? 'UPDATE' : 'ADD'}</CButton>

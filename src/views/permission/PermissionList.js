@@ -5,6 +5,9 @@ import { useSelector } from 'react-redux';
 import { useNavigate, createSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getBadge from '../badge';
+import getstatus from '../status';
+import Paginate from 'src/components/Paginate';
 
 const PermissionList = () => {
 
@@ -16,6 +19,12 @@ const PermissionList = () => {
 
     const [permission, setPermission] = useState([])
 
+    const [page, setPage] = useState({
+        current_page: 0,
+        total_items: 0,
+        total_pages: 0,
+    })
+
     const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
 
     useEffect(() => {
@@ -23,15 +32,15 @@ const PermissionList = () => {
             navigate('/login');
             window.location.reload();
         }
-        fetchPermisisonList();
+        fetchPermisisonList(true, 0);
     }, [isLoggedIn]);
 
-    const fetchPermisisonList = () => {
-        return userService.getPermisisons().then(
+    const fetchPermisisonList = (paginated, current_page) => {
+        return userService.getPermisisons(paginated, current_page).then(
             (data) => {
                 console.log(data.data.response_data);
-                //addToast(ToastMessage(data.data.response_message, 'primary'))
                 setPermission(data.data.response_data);
+                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
             },
             (error) => {
                 console.log(error)
@@ -113,35 +122,19 @@ const PermissionList = () => {
         },
     ]
 
-    const getBadge = (status) => {
-        switch (status) {
-            case 1:
-                return 'success'
-            case 2:
-                return 'secondary'
-            case 3:
-                return 'warning'
-            case 4:
-                return 'danger'
-            default:
-                return 'primary'
+    const handlePaginate = (page_number) => {
+        if (page_number < 0 || page_number >= page.total_pages) {
+          addToast(ToastMessage("Page Not Availble", 'danger'));
+        } else {
+          return fetchPermisisonList(true, page_number);
         }
-    }
-
-    const getstatus = (status) => {
-        switch (status) {
-            case 1:
-                return 'Active'
-            case 2:
-                return 'Inactive'
-            case 3:
-                return 'Pending'
-            case 4:
-                return 'Banned'
-            default:
-                return 'primary'
+      }
+    
+      const paginateRender = () => {
+        if (permission.length > 0) {
+          return (<Paginate data={permission} page={page} handle={handlePaginate} />);
         }
-    };
+      }
 
 
     return (
@@ -164,7 +157,7 @@ const PermissionList = () => {
                     {permission.map((val, key) => {
                         return (
                             <CTableRow key={key}>
-                                <CTableDataCell>{key + 1}</CTableDataCell>
+                               <CTableDataCell>{(page.current_page) * Math.ceil(page.total_items / page.total_pages) + (key + 1)}</CTableDataCell>
                                 <CTableDataCell>{val.permission_name}</CTableDataCell>
                                 <CTableDataCell>{val.permission_code}</CTableDataCell>
                                 <CTableDataCell>{val.description}</CTableDataCell>
@@ -183,8 +176,8 @@ const PermissionList = () => {
                         )
                     })}
                 </CTableBody>
-
             </CTable>
+            {paginateRender()}
         </>
     )
 }

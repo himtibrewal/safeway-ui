@@ -118,9 +118,13 @@ class UserService {
     }
 
     // ADMIN USER 
-    getusers() {
+    getusers(paginated, page) {
         return axios.get(API_URL() + '/users', {
-            headers: authHeader()
+            headers: authHeader(),
+            params: {
+                paginated: paginated,
+                page: page,
+            },
         });
     }
 
@@ -216,9 +220,13 @@ class UserService {
 
     // ADMIN PERMISSION 
 
-    getPermisisons() {
+    getPermisisons(paginated, page) {
         return axios.get(API_URL() + '/admin/permission', {
-            headers: authHeader()
+            headers: authHeader(),
+            params: {
+                paginated: paginated,
+                page: page,
+            },
         });
     }
 
@@ -248,9 +256,13 @@ class UserService {
 
     // ADMIN ROLE 
 
-    getRoles() {
+    getRoles(paginated, page) {
         return axios.get(API_URL() + '/admin/role', {
-            headers: authHeader()
+            headers: authHeader(),
+            params: {
+                paginated: paginated,
+                page: page,
+            },
         });
     }
 
