@@ -149,12 +149,23 @@ const UserList = () => {
 
   return (
     <>
-      <CButton type="button" color="success" variant="outline" className="me-2" onClick={() => handleAdd()}>
-        Add
-      </CButton>
       <CToaster ref={toaster} push={toast} placement="top-center" />
       <CTable responsive hover >
         <CTableHead>
+          <CTableRow>
+            {columns.map((val, key) => {
+              if (key == columns.length - 1) {
+                return (
+                  <CTableHeaderCell key="add_button">
+                    <CButton type="button" color="success" variant="outline" onClick={() => handleAdd()}>
+                      Add
+                    </CButton>
+                  </CTableHeaderCell>
+                );
+              }
+              return (<CTableHeaderCell key={key}></CTableHeaderCell>);
+            })}
+          </CTableRow>
           <CTableRow>
             {columns.map((val, key) => {
               return (

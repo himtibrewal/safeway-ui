@@ -174,9 +174,13 @@ class UserService {
 
     //ADMIN VEHICLE
 
-    getVehicles() {
+    getVehicles(paginated, page) {
         return axios.get(API_URL() + '/vehicle', {
-            headers: authHeader()
+            headers: authHeader(),
+            params: {
+                paginated: paginated,
+                page: page,
+            },
         });
     }
 

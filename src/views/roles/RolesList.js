@@ -23,7 +23,7 @@ const RoleList = () => {
     current_page: 0,
     total_items: 0,
     total_pages: 0,
-})
+  })
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
 
@@ -123,27 +123,38 @@ const RoleList = () => {
 
   const handlePaginate = (page_number) => {
     if (page_number < 0 || page_number >= page.total_pages) {
-        addToast(ToastMessage("Page Not Availble", 'danger'));
+      addToast(ToastMessage("Page Not Availble", 'danger'));
     } else {
-        return fetchRoleList(true, page_number);
+      return fetchRoleList(true, page_number);
     }
-}
+  }
 
-const paginateRender = () => {
+  const paginateRender = () => {
     if (role.length > 0) {
-        return (<Paginate data={role} page={page} handle={handlePaginate}/>);
+      return (<Paginate data={role} page={page} handle={handlePaginate} />);
     }
-}
+  }
 
 
   return (
     <>
-      <CButton type="button" color="success" variant="outline" className="me-2" onClick={() => handleAdd()}>
-        Add
-      </CButton>
       <CToaster ref={toaster} push={toast} placement="top-center" />
       <CTable responsive hover >
         <CTableHead>
+          <CTableRow>
+            {columns.map((val, key) => {
+              if (key == columns.length - 1) {
+                return (
+                  <CTableHeaderCell key="add_button">
+                    <CButton type="button" color="success" variant="outline" onClick={() => handleAdd()}>
+                      Add
+                    </CButton>
+                  </CTableHeaderCell>
+                );
+              }
+              return (<CTableHeaderCell key={key}></CTableHeaderCell>);
+            })}
+          </CTableRow>
           <CTableRow>
             {columns.map((val, key) => {
               return (

@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getstatus from '../status';
 
 const VehicleEdit = () => {
     const [toast, addToast] = useState(0)
@@ -69,7 +70,7 @@ const VehicleEdit = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const data = { "registration_no": vehicle.registration_no, "brand": vehicle.brand, "model": vehicle.model, "type": vehicle.type };
+        const data = { "registration_no": vehicle.registration_no, "brand": vehicle.brand, "model": vehicle.model, "type": vehicle.type, "status": vehicle.status };
         if (isEdit) {
             return userService.editVehicle(id, data).then(
                 (data) => {
@@ -119,6 +120,11 @@ const VehicleEdit = () => {
         setVehicle({ ...vehicle, model: e.target.value, });
     };
 
+    const onChangeStatus = (e) => {
+        setVehicle({ ...vehicle, status: e.target.value, });
+    };
+
+
 
 
     return (
@@ -138,14 +144,13 @@ const VehicleEdit = () => {
                 <CCol md={12}>
                     <CFormInput type="text" id="model" label="Model" onChange={onChangeModel} value={vehicle.model} />
                 </CCol>
-                {/* <CCol xs={12}>
-                    <CFormSelect label="State" className="mb-3" onChange={onChangeState} value={vehicle.state_id}>
-                        <option value={0} key="">Select Country</option>
-                        {country.map((val, key) => {
-                            return (<option value={val.id} key={key}>{val.state_name} </option>)
-                        })}
+                <CCol xs={12}>
+                    <CFormSelect label="Status" className="mb-3" onChange={onChangeStatus} value={vehicle.status}>
+                        <option value={""} key="">Select Status</option>
+                        <option value={0} key="status_0">{getstatus(0)} </option>
+                        <option value={1} key="status_1">{getstatus(1)} </option>
                     </CFormSelect>
-                </CCol> */}
+                </CCol>
                 <CCol xs={12}>
                     <CButton type="submit" color="success" variant="outline" className="me-2">{isEdit ? 'UPDATE' : 'ADD'}</CButton>
                 </CCol>

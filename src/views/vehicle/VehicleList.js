@@ -5,6 +5,9 @@ import { useSelector } from 'react-redux';
 import { useNavigate, createSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getBadge from '../badge';
+import getstatus from '../status';
+import Paginate from 'src/components/Paginate';
 
 const VehicletList = () => {
 
@@ -16,6 +19,12 @@ const VehicletList = () => {
 
     const [vehicle, setVehicle] = useState([])
 
+    const [page, setPage] = useState({
+        current_page: 0,
+        total_items: 0,
+        total_pages: 0,
+    })
+
     const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
 
     useEffect(() => {
@@ -23,14 +32,15 @@ const VehicletList = () => {
             navigate('/login');
             window.location.reload();
         }
-        fetchVehicleList();
+        fetchVehicleList(true, 0);
     }, [isLoggedIn]);
 
-    const fetchVehicleList = () => {
-        return userService.getVehicles().then(
+    const fetchVehicleList = (paginated, page_number) => {
+        return userService.getVehicles(paginated, page_number).then(
             (data) => {
                 console.log(data.data.response_data);
                 setVehicle(data.data.response_data);
+                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
             },
             (error) => {
                 console.log(error)
@@ -66,7 +76,7 @@ const VehicletList = () => {
                 pathname: "/vehicle/addEdit",
                 search: createSearchParams({}).toString(),
             },
-            { state: { } },
+            { state: {} },
         );
     };
 
@@ -106,50 +116,50 @@ const VehicletList = () => {
             label: 'Model',
         },
         {
+            key: 'status',
+            label: 'Status',
+        },
+        {
             key: 'Action',
             label: 'Action',
         },
-    ]
+    ];
 
-    const getBadge = (status) => {
-        switch (status) {
-            case 1:
-                return 'success'
-            case 2:
-                return 'secondary'
-            case 3:
-                return 'warning'
-            case 4:
-                return 'danger'
-            default:
-                return 'primary'
+    const handlePaginate = (page_number) => {
+        if (page_number < 0 || page_number >= page.total_pages) {
+            addToast(ToastMessage("Page Not Availble", 'danger'));
+        } else {
+            return fetchVehicleList(true, page_number);
         }
     }
 
-    const getstatus = (status) => {
-        switch (status) {
-            case 1:
-                return 'Active'
-            case 2:
-                return 'Inactive'
-            case 3:
-                return 'Pending'
-            case 4:
-                return 'Banned'
-            default:
-                return 'primary'
+    const paginateRender = () => {
+        if (vehicle.length > 0) {
+            return (<Paginate data={vehicle} page={page} handle={handlePaginate} />);
         }
-    };
+    }
+
 
 
     return (
         <>
-            <CButton type="button" color="success" variant="outline" className="me-2" onClick={() => handleAdd()}>
-                Add
-            </CButton>
             <CToaster ref={toaster} push={toast} placement="top-center" />
             <CTable responsive hover >
                 <CTableHead>
+                    <CTableRow>
+                        {columns.map((val, key) => {
+                            if (key == columns.length - 1) {
+                                return (
+                                    <CTableHeaderCell key="add_button">
+                                        <CButton type="button" color="success" variant="outline" onClick={() => handleAdd()}>
+                                            Add
+                                        </CButton>
+                                    </CTableHeaderCell>
+                                );
+                            }
+                            return (<CTableHeaderCell key={key}></CTableHeaderCell>);
+                        })}
+                    </CTableRow>
                     <CTableRow>
                         {columns.map((val, key) => {
                             return (
@@ -182,8 +192,8 @@ const VehicletList = () => {
                         )
                     })}
                 </CTableBody>
-
             </CTable>
+            {paginateRender()}
         </>
     )
 }
