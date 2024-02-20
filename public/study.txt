@@ -1,0 +1,14 @@
+For Api call 
+https://github.com/bezkoder/spring-boot-react-mysql/blob/master/react-client/src/components/tutorials-list.component.js
+
+https://www.bezkoder.com/react-redux-jwt-auth/
+
+https://www.scaler.com/topics/react/passing-data-between-components/#
+
+#REDUX
+https://github.com/cosdensolutions/code/blob/master/videos/long/redux-tutorial/src/state/counter/counterSlice.ts
+
+#JPA Optimiozation
+https://medium.com/@AlexanderObregon/optimizing-queries-with-query-annotation-in-spring-data-jpa-fe213c8a60a
+
+https://medium.com/@techkarmo/spring-data-jpa-join-with-unrelated-entities-with-help-of-jpql-in-spring-boot-application-c358e11512bd
