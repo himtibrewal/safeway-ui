@@ -7,6 +7,7 @@ import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
 import getBadge from '../badge';
 import getstatus from '../status';
+import Paginate from 'src/components/Paginate';
 
 const StateList = () => {
 
@@ -40,8 +41,8 @@ const StateList = () => {
         getAllCountry();
     }, [isLoggedIn]);
 
-    const fetchStateList = (countryId) => {
-        return userService.getStates(true, 0, countryId).then(
+    const fetchStateList = (paginated, page_number, countryId) => {
+        return userService.getStates(paginated, page_number, countryId).then(
             (data) => {
                 console.log(data.data.response_data);
                 setState(data.data.response_data);
@@ -70,7 +71,7 @@ const StateList = () => {
         setCountryNameSelected(country_name);
         if (countryId > 0) {
             setState([]);
-            fetchStateList(e.target.value);
+            fetchStateList(true, 0, countryId);
         } else {
             addToast(ToastMessage("Please Select Country", 'danger'));
         }
@@ -80,8 +81,7 @@ const StateList = () => {
     const getAllCountry = () => {
         return userService.getCountries(false, 0).then(
             (data) => {
-                console.log(data.data.response_data);
-                setCountry(data.data.response_data);
+                setCountry(data.data.response_data.filter(v => v.status == 1));
             },
             (error) => {
                 console.log(error)
@@ -167,51 +167,14 @@ const StateList = () => {
         if (page_number < 0 || page_number >= page.total_pages) {
             addToast(ToastMessage("Page Not Availble", 'danger'));
         } else {
-            return userService.getCountries(true, page_number).then(
-                (data) => {
-                    console.log(data.data.response_data);
-                    setCountry(data.data.response_data);
-                    setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
-                },
-                (error) => {
-                    const message =
-                        (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
-                    if (error.response.status) {
-                        authService.logout();
-                    }
-                    addToast(ToastMessage(error.response.data.response_message, 'danger'));
-
-                    return message;
-                }
-            );
+            return fetchStateList(true, page_number, countrySelected);
         }
     }
 
-    const renderPage = () => {
+    const paginateRender = () => {
         if (state.length > 0) {
-            return (<CPagination size="lg" align='end' >
-                <CPaginationItem onClick={() => handlePaginate(page.current_page - 1)}>Previous</CPaginationItem>
-                {renderPaginate()}
-                <CPaginationItem onClick={() => handlePaginate(page.current_page + 1)}>Next</CPaginationItem>
-            </CPagination>);
+            return (<Paginate data={country} page={page} handle={handlePaginate}/>);
         }
-    }
-
-    const renderPaginate = () => {
-        var isDisable = false;
-        var isactive = false;
-        return (
-            Array.apply(0, Array(page.total_pages)).map(function (x, i) {
-                console.log(i);
-                var pageName = i + 1;
-                if (i == page.current_page) {
-                    isactive = true;
-                } else {
-                    isactive = false;
-                }
-                return <CPaginationItem key={'page' + i} active={isactive} disabled={isDisable} val={i} onClick={() => handlePaginate(i)}>{pageName}</CPaginationItem>;
-            })
-        );
     }
 
 
@@ -225,7 +188,7 @@ const StateList = () => {
                             if (key == 0) {
                                 return (
                                     <CTableHeaderCell key="select_country">
-                                        <CFormSelect label="" className="mb-3" onChange={onChangeCountry}>
+                                        <CFormSelect label="" className="mb-3" onChange={onChangeCountry} defaultValue={countrySelected}>
                                             <option value={0} key="">Select Country</option>
                                             {country.map((val, key) => {
                                                 return (<option value={val.id} key={key}>{val.country_name}</option>)
@@ -278,7 +241,7 @@ const StateList = () => {
                     })}
                 </CTableBody>
             </CTable>
-            {renderPage()}
+            {paginateRender()}
         </>
     )
 }

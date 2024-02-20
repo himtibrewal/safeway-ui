@@ -8,6 +8,7 @@ import ToastMessage from 'src/components/ToastMessage';
 import authService from "src/services/auth.service";
 import getstatus from '../status';
 import getBadge from '../badge';
+import Paginate from 'src/components/Paginate';
 
 const CountryList = () => {
 
@@ -32,13 +33,12 @@ const CountryList = () => {
             navigate('/login');
             window.location.reload();
         }
-        fetchCountryList();
+        fetchCountryList(true, page.current_page);
     }, [isLoggedIn]);
 
-    const fetchCountryList = () => {
-        return userService.getCountries(true, page.current_page).then(
+    const fetchCountryList = (paginated, current_page) => {
+        return userService.getCountries(paginated, current_page).then(
             (data) => {
-                console.log(data.data.response_data);
                 setCountry(data.data.response_data);
                 setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
             },
@@ -50,7 +50,6 @@ const CountryList = () => {
                 }
                 console.log(error)
                 addToast(ToastMessage(message, 'danger'));
-                
                 return message;
             }
         );
@@ -59,7 +58,6 @@ const CountryList = () => {
     const deleteCountry = (index, country_id) => {
         return userService.deleteCountry(country_id).then(
             (data) => {
-                console.log(data.data.response_data);
                 addToast(ToastMessage('Deleted Successfully !!', 'primary'));
                 country.splice(index, 1);
             },
@@ -129,51 +127,14 @@ const CountryList = () => {
         if (page_number < 0 || page_number >= page.total_pages) {
             addToast(ToastMessage("Page Not Availble", 'danger'));
         } else {
-            return userService.getCountries(true, page_number).then(
-                (data) => {
-                    console.log(data.data.response_data);
-                    setCountry(data.data.response_data);
-                    setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
-                },
-                (error) => {
-                    const message =
-                        (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
-                    if (error.response && error.response.status) {
-                        authService.logout();
-                    }
-                    addToast(ToastMessage(error.response.data.response_message, 'danger'));
-
-                    return message;
-                }
-            );
+            return fetchCountryList(true, page_number);
         }
     }
 
-    const renderPage = () => {
+    const paginateRender = () => {
         if (country.length > 0) {
-            return (<CPagination size="lg" align='end' >
-                <CPaginationItem onClick={() => handlePaginate(page.current_page - 1)}>Previous</CPaginationItem>
-                {renderPaginate()}
-                <CPaginationItem onClick={() => handlePaginate(page.current_page + 1)}>Next</CPaginationItem>
-            </CPagination>);
+            return (<Paginate data={country} page={page} handle={handlePaginate}/>);
         }
-    }
-
-    const renderPaginate = () => {
-        var isDisable = false;
-        var isactive = false;
-        return (
-            Array.apply(0, Array(page.total_pages)).map(function (x, i) {
-                console.log(i);
-                var pageName = i + 1;
-                if (i == page.current_page) {
-                    isactive = true;
-                } else {
-                    isactive = false;
-                }
-                return <CPaginationItem key={'page' + i} active={isactive} disabled={isDisable} val={i} onClick={() => handlePaginate(i)}>{pageName}</CPaginationItem>;
-            })
-        );
     }
 
     return (
@@ -226,9 +187,8 @@ const CountryList = () => {
                         )
                     })}
                 </CTableBody>
-
             </CTable>
-            {renderPage()}
+            {paginateRender()}
         </>
 
     );
