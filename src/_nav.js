@@ -28,32 +28,45 @@ const _nav = [
     },
   },
   {
+    component: CNavGroup,
+    name: 'Admin',
+    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Permissions',
+        to: '/permission',
+        icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Roles',
+        to: '/roles',
+        icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Country',
+        to: '/country',
+        icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'State',
+        to: '/state',
+        icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'City',
+        to: '/city',
+        icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
+      },
+    ] 
+  },
+  {
     component: CNavTitle,
     name: 'Admin',
-  },
-  {
-    component: CNavItem,
-    name: 'Assign Vehicle',
-    to: '/assign/vehicle',
-    icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Country',
-    to: '/country',
-    icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'State',
-    to: '/state',
-    icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'City',
-    to: '/city',
-    icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
@@ -69,21 +82,9 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Permissions',
-    to: '/permission',
-    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Roles',
-    to: '/roles',
-    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Typography',
-    to: '/theme/typography',
-    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+    name: 'Assign Vehicle',
+    to: '/assign/vehicle',
+    icon: <CIcon icon={cilLaptop} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,

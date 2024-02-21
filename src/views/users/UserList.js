@@ -55,9 +55,8 @@ const UserList = () => {
   const deleteUser = (index, user_id) => {
     return userService.deleteUser(user_id).then(
       (data) => {
-        console.log(data.data.response_data);
         addToast(ToastMessage('Deleted Successfully !!', 'primary'));
-        role.splice(index, 1);
+        user.splice(index, 1);
       },
       (error) => {
         console.log(error)
@@ -91,7 +90,7 @@ const UserList = () => {
   };
 
   const handleDelete = (index, user_id) => {
-    deleteRole(index, user_id)
+    deleteUser(index, user_id)
     console.log("deleted" + user_id);
   };
 
