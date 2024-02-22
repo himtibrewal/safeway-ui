@@ -38,7 +38,6 @@ const UserList = () => {
   const fetchUserList = (paginated, current_page) => {
     return userService.getusers(paginated, current_page).then(
       (data) => {
-        console.log(data.data.response_data);
         setUser(data.data.response_data);
         setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
       },

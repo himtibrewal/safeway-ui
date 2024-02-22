@@ -45,11 +45,12 @@ const CountryList = () => {
             (error) => {
                 const message =
                     (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
-                if (error.response && error.response.status) {
-                    authService.logout();
-                }
-                console.log(error)
                 addToast(ToastMessage(message, 'danger'));
+                if(error.response.data.response_status == 401){
+                    localStorage.removeItem("user");
+                    navigate('/login');
+                    window.location.reload();
+                };
                 return message;
             }
         );

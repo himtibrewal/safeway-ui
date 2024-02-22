@@ -46,7 +46,7 @@ const Login = () => {
     if (isLoggedIn === true) {
       console.log(window.location);
       navigate('/');
-     // window.location.reload();
+      // window.location.reload();
     }
   }, [isLoggedIn]);
 
@@ -61,13 +61,15 @@ const Login = () => {
   const handleLogin = (e) => {
     console.log(state)
     e.preventDefault();
-    const data = {"username": state.username, "password":  state.password};
+    const data = { "username": state.username, "password": state.password, "type": "email" };
     dispatch(loginAsync(data))
       .then((data) => {
-       console.log(data);
-       addToast(ToastMessage(data.payload.user.response_message, 'danger'));
-       navigate('/');
-       window.location.reload();
+        console.log(data.payload.user);
+        addToast(ToastMessage(data.payload.user.response_message, 'danger'));
+        if (data.payload.user.response_status == 200) {
+          navigate('/');
+          window.location.reload();
+        }
       })
       .catch((e) => {
         console.log(e);
@@ -78,7 +80,7 @@ const Login = () => {
   return (
     <>
       <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-      <CToaster ref={toaster} push={toast} placement="top-center" />
+        <CToaster ref={toaster} push={toast} placement="top-center" />
         <CContainer>
           <CRow className="justify-content-center">
             <CCol md={8}>

@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import ToastMessage from 'src/components/ToastMessage';
 import {
   CAvatar,
   CBadge,
@@ -23,8 +24,37 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+import authService from 'src/services/auth.service';
+import { useNavigate } from 'react-router-dom';
 
 const AppHeaderDropdown = () => {
+
+  const [toast, addToast] = useState(0)
+
+  const toaster = React.useRef();
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    console.log("User Logout !!");
+    return authService.logout().then(
+      (data) => {
+        console.log(data);
+        addToast(ToastMessage('Logout Successfully !!', 'primary'));
+        localStorage.removeItem("user");
+        navigate('/login');
+        window.location.reload();
+      },
+      (error) => {
+        console.log(error)
+        const message =
+          (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
+        addToast(ToastMessage(message, 'danger'))
+        return message;
+      }
+    );
+  };
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -84,9 +114,9 @@ const AppHeaderDropdown = () => {
           </CBadge>
         </CDropdownItem>
         <CDropdownDivider />
-        <CDropdownItem href="#">
+        <CDropdownItem onClick={() => handleLogout()}>
           <CIcon icon={cilLockLocked} className="me-2" />
-          Lock Account
+          Logout
         </CDropdownItem>
       </CDropdownMenu>
     </CDropdown>

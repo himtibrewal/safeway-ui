@@ -28,16 +28,16 @@ const AuthSlice = createSlice({
 export const loginAsync = createAsyncThunk(
     "user/login",
     async (body) => {
-        const { username, password } = body;
+        const { username, password, type } = body;
         console.log(username, password);
-        return authService.login(username, password).then(
+        return authService.login(username, password, type).then(
             (data) => {
                 return { user: data };
             },
             (error) => {
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
-                return { user: error };
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
+                return { user: error.response.data };
             }
         );
     }
