@@ -42,14 +42,12 @@ const AssignByUser = () => {
     const fetchUser = () => {
         return userService.getUserByKey(user).then(
             (data) => {
-                console.log(data);
-                console.log(data.data.response_data);
                 setUserList(data.data.response_data);
             },
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'));
                 return message;
             }
@@ -59,14 +57,12 @@ const AssignByUser = () => {
     const fetchVehicle = () => {
         return userService.getVehicleByKey(vehicle).then(
             (data) => {
-                console.log(data);
-                console.log(data.data.response_data);
                 setVehicleList(data.data.response_data);
             },
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'));
                 return message;
             }
@@ -77,14 +73,12 @@ const AssignByUser = () => {
     const assignVehicle = () => {
         return userService.assignVehicle(selectedUserIds[0], selectedVehicleIds).then(
             (data) => {
-                console.log(data.data.response_data);
                 addToast(ToastMessage('Assigned Successfully !!', 'primary'));
-                //vehicle.splice(index, 1);
             },
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'))
                 return message;
             }
@@ -108,8 +102,6 @@ const AssignByUser = () => {
     };
 
     const handleMapping = () => {
-        console.log(selectedUserIds);
-        console.log(selectedVehicleIds);
         if (selectedUserIds.length == 1  && selectedVehicleIds.length > 0) {
             assignVehicle();
         } else {
@@ -235,7 +227,7 @@ const AssignByUser = () => {
                                 <CTableRow key={key}>
                                     <CTableDataCell>
 
-                                    <CFormCheck key={key} id={val.id}  value={val.id} checked={selectedUserIds.includes(val.id)} onChange={(event) => { handleCheckboxChangeUser(event) }} />
+                                    <CFormCheck key={key} id={"key"+val.id}  value={val.id} checked={selectedUserIds.includes(val.id)} onChange={(event) => { handleCheckboxChangeUser(event) }} />
                                 
                                     </CTableDataCell>
                                     <CTableDataCell>{key + 1}</CTableDataCell>
@@ -270,7 +262,7 @@ const AssignByUser = () => {
                             return (
                                 <CTableRow key={key}>
                                     <CTableDataCell>
-                                    <CFormCheck key={key} id={val.id}  value={val.id} checked={selectedVehicleIds.includes(val.id)} onChange={(event) => { handleCheckboxChangeVehicle(event) }} />
+                                    <CFormCheck key={key} id={"key"+val.id}  value={val.id} checked={selectedVehicleIds.includes(val.id)} onChange={(event) => { handleCheckboxChangeVehicle(event) }} />
                                     </CTableDataCell>
                                     <CTableDataCell>{key + 1}</CTableDataCell>
                                     <CTableDataCell>{val.registration_no}</CTableDataCell>

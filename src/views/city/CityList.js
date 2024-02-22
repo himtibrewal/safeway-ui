@@ -56,7 +56,7 @@ const DistrictList = () => {
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'))
                 return message;
             }
@@ -92,7 +92,7 @@ const DistrictList = () => {
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'))
                 return message;
             }
@@ -128,7 +128,7 @@ const DistrictList = () => {
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'));
                 return message;
             }
@@ -145,7 +145,7 @@ const DistrictList = () => {
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'))
                 return message;
             }

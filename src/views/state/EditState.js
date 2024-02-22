@@ -40,9 +40,7 @@ const StateEdit = () => {
             window.location.reload();
         }
         if (isEdit) {
-
             getState();
-
         }
         getAllCountry().then((countries) => {
             setCountry(countries.filter(v => v.status == 1));
@@ -58,7 +56,7 @@ const StateEdit = () => {
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'))
                 return message;
             }
@@ -74,7 +72,7 @@ const StateEdit = () => {
             (error) => {
                 console.log(error)
                 const message =
-                    (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                    (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'))
                 return message;
             }
@@ -99,7 +97,7 @@ const StateEdit = () => {
                     (error) => {
                         console.log(error)
                         const message =
-                            (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                            (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                         addToast(ToastMessage(message, 'danger'))
                         return message;
                     }
@@ -113,7 +111,7 @@ const StateEdit = () => {
                     (error) => {
                         console.log(error)
                         const message =
-                            (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
+                            (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                         addToast(ToastMessage(message, 'danger'))
                         return message;
                     }
