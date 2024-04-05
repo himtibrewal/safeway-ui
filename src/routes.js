@@ -16,6 +16,8 @@ const StateEdit = React.lazy(() => import('./views/state/EditState'))
 const CityList = React.lazy(() => import('./views/city/CityList'))
 const CityEdit = React.lazy(() => import('./views/city/EditCity'))
 const AssignByUser = React.lazy(() => import('./views/assign/AssignByUser'))
+const QrList = React.lazy(() => import('./views/qr/QRcode'))
+const QrCodeEdit = React.lazy(() => import('./views/qr/EditQrCode'))
 
 
 const routes = [
@@ -29,13 +31,15 @@ const routes = [
   { path: '/city/addEdit', name: 'District', element: CityEdit },
   { path: '/users', name: 'Users', element: UserList },
   { path: '/user/addEdit', name: 'ADD Edit User', element: UserEdit },
-  { path: '/vehicle', name: 'Users', element: VehicleList },
+  { path: '/vehicle', name: 'Vehicles', element: VehicleList },
   { path: '/vehicle/addEdit', name: 'ADD Edit Vehicle', element: VehicleEdit },
   { path: '/permission', name: 'Permission', element: PermissionList },
   { path: '/permission/addEdit', name: 'ADD Edit Permission', element: PermissionEdit },
   { path: '/roles', name: 'Roles', element: RolesList },
   { path: '/role/addEdit', name: 'ADD Edit Role', element: RoleEdit },
   { path: '/assign/vehicle', name: 'Assign Vehicle', element: AssignByUser },
+  { path: '/qr', name: 'QR Code', element: QrList },
+  { path: '/qr/addEdit', name: 'ADD Edit QR Code', element: QrCodeEdit },
 ]
 
 export default routes

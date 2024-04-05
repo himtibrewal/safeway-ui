@@ -1,7 +1,6 @@
 import { CPagination, CPaginationItem} from '@coreui/react';
 
 const Paginate = (data) => {
-    console.log(data);
     var page = data.page;
     var callback = data.handle;
         return (<CPagination size="lg" align='end' >
@@ -22,11 +21,10 @@ const renderPaginate = (page, callback) => {
             } else {
                 isactive = false;
             }
-            // if((page.current_page - 2) > i || (page.current_page + 2) <  i){
-            //     console.log(i, page.current_page + 2)
+
+            if(i <= Math.max(2, page.current_page + 2) && i >= (page.current_page - 2)){
                 return <CPaginationItem key={'page' + i} active={isactive} disabled={isDisable} val={i} onClick={() => handlePaginate(i, callback)}>{pageName}</CPaginationItem>
-            // }
-            
+            }
         })
     );
 }

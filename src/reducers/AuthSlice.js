@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import authService from "src/services/auth.service";
 
 const user = JSON.parse(localStorage.getItem("user"));
-const initialState = user ? { isLoggedIn: true, user } : { isLoggedIn: false, user: null };
+const initialState = user ? { isLoggedIn: true, user: user, permissions: user.permissions } : { isLoggedIn: false, user: null, permissions: []};
 
 const AuthSlice = createSlice({
     name: "auth",
@@ -13,13 +13,13 @@ const AuthSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(loginAsync.rejected, (state, action) =>{
-                return { ...state, isLoggedIn: false, user: null, };
+                return { ...state, isLoggedIn: false, user: null, permissions: [],};
             })
             .addCase(loginAsync.fulfilled, (state, action) => {
                 if (action.payload.response_status == 200) {
-                    return { ...state, isLoggedIn: true, user: action.payload.response_data, };
+                    return { ...state, isLoggedIn: true, user: action.payload.response_data, permissions: user.permissions, };
                 }
-                return { ...state, isLoggedIn: false, user: null, };
+                return { ...state, isLoggedIn: false, user: null, permissions: [],};
             });
     },
 });

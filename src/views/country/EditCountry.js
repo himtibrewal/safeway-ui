@@ -22,7 +22,9 @@ const CountryEdit = () => {
 
     const id = searchParams.get('id');
 
-    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+    const permissions = useSelector((state) => state.auth.permissions);
 
     const [country, setCountry] = useState({
         country_name: "",
@@ -110,6 +112,13 @@ const CountryEdit = () => {
         setCountry({ ...country, status: e.target.value, });
     };
 
+    const isAddEdit = () => {
+        if(isEdit){
+            return !permissions.includes("EDIT_COUNTRY");
+        }
+        return !permissions.includes("ADD_COUNTRY");
+    }
+
     return (
         <>
             <CForm className="row g-3" onSubmit={handleSubmit}>
@@ -131,7 +140,7 @@ const CountryEdit = () => {
                     </CFormSelect>
                 </CCol>
                 <CCol xs={12}>
-                    <CButton type="submit" color="success" variant="outline" className="me-2">{isEdit ? 'UPDATE' : 'ADD'}</CButton>
+                    <CButton type="submit" color="success" variant="outline"  disabled={isAddEdit()} className="me-2">{isEdit ? 'UPDATE' : 'ADD'}</CButton>
                 </CCol>
             </CForm>
             <CToaster ref={toaster} push={toast} placement="top-center" />

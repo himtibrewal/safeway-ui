@@ -1,12 +1,15 @@
-import { CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CBadge, CButton, CToaster } from '@coreui/react';
+import { CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CBadge, CButton, CToaster, CImage } from '@coreui/react';
 import * as React from 'react';
 import { useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { useNavigate, createSearchParams } from 'react-router-dom'
 import userService from 'src/services/user.service';
 import ToastMessage from 'src/components/ToastMessage';
+import getBadge from '../badge';
+import getstatus from '../status';
+import Paginate from 'src/components/Paginate';
 
-const VehicletList = () => {
+const QrcodeList = () => {
 
     const [toast, addToast] = useState(0)
 
@@ -14,23 +17,32 @@ const VehicletList = () => {
 
     const navigate = useNavigate();
 
-    const [vehicle, setVehicle] = useState([])
+    const [qrcode, setQrcode] = useState([])
 
-    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
+    const [page, setPage] = useState({
+        current_page: 0,
+        total_items: 0,
+        total_pages: 0,
+        per_page: 0,
+    })
+
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+    const permissions = useSelector((state) => state.auth.permissions);
 
     useEffect(() => {
         if (isLoggedIn === false) {
             navigate('/login');
             window.location.reload();
         }
-        fetchVehicleList();
+        fetchQrCodeList(true, 0);
     }, [isLoggedIn]);
 
-    const fetchVehicleList = () => {
-        return userService.getVehicles().then(
+    const fetchQrCodeList = (paginated, page_number) => {
+        return userService.getQrCodes(paginated, page_number).then(
             (data) => {
-                console.log(data.data.response_data);
-                setVehicle(data.data.response_data);
+                setQrcode(data.data.response_data);
+                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, per_page: data.data.per_page });
             },
             (error) => {
                 console.log(error)
@@ -42,12 +54,12 @@ const VehicletList = () => {
         );
     };
 
-    const deleteVehicle = (index, vehicle_id) => {
-        return userService.deleteVehiclet(vehicle_id).then(
+    const deleteQrCode = (index, qrcode_id) => {
+        return userService.deleteQrCode(qrcode_id).then(
             (data) => {
                 console.log(data.data.response_data);
                 addToast(ToastMessage('Deleted Successfully !!', 'primary'));
-                vehicle.splice(index, 1);
+                qrcode.splice(index, 1);
             },
             (error) => {
                 console.log(error)
@@ -63,25 +75,25 @@ const VehicletList = () => {
     const handleAdd = () => {
         navigate(
             {
-                pathname: "/vehicle/addEdit",
+                pathname: "/qr/addEdit",
                 search: createSearchParams({}).toString(),
             },
-            { state: { } },
+            { state: {} },
         );
     };
 
-    const handleEdit = (index, vehicle_id) => {
+    const handleEdit = (index, qrcode_id) => {
         navigate(
             {
-                pathname: "/vehicle/addEdit",
-                search: createSearchParams({ id: vehicle_id, edit: true }).toString(),
+                pathname: "/qr/addEdit",
+                search: createSearchParams({ id: qrcode_id, edit: true }).toString(),
             },
-            { state: vehicle[index] },
+            { state: qrcode[index] },
         );
     };
 
-    const handleDelete = (index, vehicle_id) => {
-        deleteVehicle(index, vehicle_id);
+    const handleDelete = (index, qrcode_id) => {
+        deleteQrCode(index, qrcode_id);
     };
 
     const columns = [
@@ -90,66 +102,73 @@ const VehicletList = () => {
             label: '#',
         },
         {
-            key: 'registration_no',
-            label: 'Registration Number',
+            key: 'key',
+            label: 'QR Key',
         },
         {
-            key: 'vehicle_type',
-            label: 'Vehicle Type',
+            key: 'path',
+            label: 'path',
         },
         {
-            key: 'brand',
-            label: 'Brand',
+            key: 'description',
+            label: 'Descriptiom',
         },
         {
-            key: 'model',
-            label: 'Model',
+            key: 'status',
+            label: 'Status',
         },
         {
             key: 'Action',
             label: 'Action',
         },
-    ]
+    ];
 
-    const getBadge = (status) => {
-        switch (status) {
-            case 1:
-                return 'success'
-            case 2:
-                return 'secondary'
-            case 3:
-                return 'warning'
-            case 4:
-                return 'danger'
-            default:
-                return 'primary'
+    const handlePaginate = (page_number) => {
+        if (page_number < 0 || page_number >= page.total_pages) {
+            addToast(ToastMessage("Page Not Availble", 'danger'));
+        } else {
+            return fetchQrCodeList(true, page_number);
         }
     }
 
-    const getstatus = (status) => {
-        switch (status) {
-            case 1:
-                return 'Active'
-            case 2:
-                return 'Inactive'
-            case 3:
-                return 'Pending'
-            case 4:
-                return 'Banned'
-            default:
-                return 'primary'
+    const paginateRender = () => {
+        if (qrcode.length > 0) {
+            return (<Paginate data={qrcode} page={page} handle={handlePaginate} />);
         }
-    };
+    }
+
+    const isAdd = () => {
+        return !permissions.includes("ADD_QR");
+    }
+
+    const isEdit = () => {
+        return !permissions.includes("EDIT_QR");
+    }
+
+    const isDelete = () => {
+        return !permissions.includes("DELETE_QR");
+    }
 
 
     return (
         <>
-            <CButton type="button" color="success" variant="outline" className="me-2" onClick={() => handleAdd()}>
-                Add
-            </CButton>
             <CToaster ref={toaster} push={toast} placement="top-center" />
             <CTable responsive hover >
                 <CTableHead>
+                    <CTableRow>
+                        {columns.map((val, key) => {
+                            if (key == columns.length - 1) {
+                                return (
+                                    <CTableHeaderCell key="add_button">
+                                        <CButton type="button" color="success" variant="outline" disabled={isAdd()} onClick={() => handleAdd()}>
+                                            Add
+                                        </CButton>
+                                    </CTableHeaderCell>
+                                );
+                            }
+                            return (<CTableHeaderCell key={key}></CTableHeaderCell>);
+                        })}
+                    </CTableRow>
                     <CTableRow>
                         {columns.map((val, key) => {
                             return (
@@ -159,22 +178,21 @@ const VehicletList = () => {
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                    {vehicle.map((val, key) => {
+                    {qrcode.map((val, key) => {
                         return (
                             <CTableRow key={key}>
-                                <CTableDataCell>{key + 1}</CTableDataCell>
-                                <CTableDataCell>{val.registration_no}</CTableDataCell>
-                                <CTableDataCell>{val.type}</CTableDataCell>
-                                <CTableDataCell>{val.brand}</CTableDataCell>
-                                <CTableDataCell>{val.model}</CTableDataCell>
+                                <CTableDataCell>{(page.current_page * page.per_page) + (key + 1)}</CTableDataCell>
+                                <CTableDataCell>{val.qr_key}</CTableDataCell>
+                                <CTableDataCell><CImage rounded thumbnail src={val.image_dir_s3} width={200} height={200} /></CTableDataCell>
+                                <CTableDataCell>{val.description}</CTableDataCell>
                                 <CTableDataCell>
                                     <CBadge color={getBadge(val.status)}>{getstatus(val.status)}</CBadge>
                                 </CTableDataCell>
                                 <CTableDataCell>
-                                    <CButton size="sm" color="primary" className="ml-1" onClick={() => handleEdit(key, val.id)}>
+                                    <CButton size="sm" color="primary" className="ml-1" disabled={isEdit()} onClick={() => handleEdit(key, val.id)}>
                                         Edit
                                     </CButton>
-                                    <CButton size="sm" color="danger" className="ml-1" onClick={() => handleDelete(key, val.id)}>
+                                    <CButton size="sm" color="danger" className="ml-1" disabled={isDelete()}onClick={() => handleDelete(key, val.id)}>
                                         Delete
                                     </CButton>
                                 </CTableDataCell>
@@ -182,10 +200,10 @@ const VehicletList = () => {
                         )
                     })}
                 </CTableBody>
-
             </CTable>
+            {paginateRender()}
         </>
     )
 }
 
-export default VehicletList
+export default QrcodeList

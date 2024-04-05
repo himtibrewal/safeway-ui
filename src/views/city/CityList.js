@@ -31,12 +31,15 @@ const DistrictList = () => {
 
     const [district, setDistrict] = useState([])
 
-    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+    const permissions = useSelector((state) => state.auth.permissions);
 
     const [page, setPage] = useState({
         current_page: 0,
         total_items: 0,
         total_pages: 0,
+        per_page: 0, 
     })
 
     useEffect(() => {
@@ -123,7 +126,7 @@ const DistrictList = () => {
             (data) => {
                 console.log(data.data.response_data);
                 setDistrict(data.data.response_data);
-                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
+                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, per_page: data.data.per_page });
             },
             (error) => {
                 console.log(error)
@@ -219,6 +222,18 @@ const DistrictList = () => {
         }
     }
 
+    const isAdd = () => {
+        return !permissions.includes("ADD_CITY");
+    }
+
+    const isEdit = () => {
+        return !permissions.includes("EDIT_CITY");
+    }
+
+    const isDelete = () => {
+        return !permissions.includes("DELETE_CITY");
+    }
+
     return (
         <>
             <CToaster ref={toaster} push={toast} placement="top-center" />
@@ -255,7 +270,7 @@ const DistrictList = () => {
                             if (key == columns.length - 1) {
                                 return (
                                     <CTableHeaderCell key="add_button">
-                                        <CButton type="button" color="success" variant="outline" onClick={() => handleAdd()}>
+                                        <CButton type="button" color="success" variant="outline" disabled={isAdd()} onClick={() => handleAdd()}>
                                             Add
                                         </CButton>
                                     </CTableHeaderCell>
@@ -276,7 +291,7 @@ const DistrictList = () => {
                     {district.map((val, key) => {
                         return (
                             <CTableRow key={key}>
-                                <CTableDataCell>{key + 1}</CTableDataCell>
+                                <CTableDataCell>{(page.current_page * page.per_page) + (key + 1)}</CTableDataCell>
                                 <CTableDataCell>{val.district_name}</CTableDataCell>
                                 <CTableDataCell>{val.district_code}</CTableDataCell>
                                 <CTableDataCell>{val.state_name}</CTableDataCell>
@@ -284,10 +299,10 @@ const DistrictList = () => {
                                     <CBadge color={getBadge(val.status)}>{getstatus(val.status)}</CBadge>
                                 </CTableDataCell>
                                 <CTableDataCell>
-                                    <CButton size="sm" color="primary" className="ml-1" onClick={() => handleEdit(key, val.id)}>
+                                    <CButton size="sm" color="primary" className="ml-1" disabled={isEdit()} onClick={() => handleEdit(key, val.id)}>
                                         Edit
                                     </CButton>
-                                    <CButton size="sm" color="danger" className="ml-1" onClick={() => handleDelete(key, val.id)}>
+                                    <CButton size="sm" color="danger" className="ml-1" disabled={isDelete()} onClick={() => handleDelete(key, val.id)}>
                                         Delete
                                     </CButton>
                                 </CTableDataCell>

@@ -23,9 +23,12 @@ const RoleList = () => {
     current_page: 0,
     total_items: 0,
     total_pages: 0,
+    per_page: 0,
   })
 
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+  const permissions = useSelector((state) => state.auth.permissions);
 
   useEffect(() => {
     if (isLoggedIn === false) {
@@ -39,7 +42,7 @@ const RoleList = () => {
     return userService.getRoles(paginated, page_number).then(
       (data) => {
         setRole(data.data.response_data);
-        setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
+        setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, per_page: data.data.per_page });
       },
       (error) => {
         console.log(error)
@@ -136,6 +139,18 @@ const RoleList = () => {
   }
 
 
+  const isAdd = () => {
+    return !permissions.includes("ADD_ROLE");
+}
+
+const isEdit = () => {
+    return !permissions.includes("EDIT_ROLE");
+}
+
+const isDelete = () => {
+    return !permissions.includes("DELETE_ROLE");
+}
+
   return (
     <>
       <CToaster ref={toaster} push={toast} placement="top-center" />
@@ -146,7 +161,7 @@ const RoleList = () => {
               if (key == columns.length - 1) {
                 return (
                   <CTableHeaderCell key="add_button">
-                    <CButton type="button" color="success" variant="outline" onClick={() => handleAdd()}>
+                    <CButton type="button" color="success" variant="outline" disabled={isAdd()} onClick={() => handleAdd()}>
                       Add
                     </CButton>
                   </CTableHeaderCell>
@@ -167,7 +182,7 @@ const RoleList = () => {
           {role.map((val, key) => {
             return (
               <CTableRow key={key}>
-                <CTableDataCell>{(page.current_page) * Math.ceil(page.total_items / page.total_pages) + (key + 1)}</CTableDataCell>
+                <CTableDataCell>{(page.current_page * page.per_page) + (key + 1)}</CTableDataCell>
                 <CTableDataCell>{val.role_name}</CTableDataCell>
                 <CTableDataCell>{val.role_code}</CTableDataCell>
                 <CTableDataCell>{val.description}</CTableDataCell>
@@ -175,10 +190,10 @@ const RoleList = () => {
                   <CBadge color={getBadge(val.status)}>{getstatus(val.status)}</CBadge>
                 </CTableDataCell>
                 <CTableDataCell>
-                  <CButton size="sm" color="primary" className="ml-1" onClick={() => handleEdit(val.id)}>
+                  <CButton size="sm" color="primary" className="ml-1" disabled={isEdit()} onClick={() => handleEdit(val.id)}>
                     Edit
                   </CButton>
-                  <CButton size="sm" color="danger" className="ml-1" onClick={() => handleDelete(key, val.id)}>
+                  <CButton size="sm" color="danger" className="ml-1" disabled={isDelete()} onClick={() => handleDelete(key, val.id)}>
                     Delete
                   </CButton>
                 </CTableDataCell>

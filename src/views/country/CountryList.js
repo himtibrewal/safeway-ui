@@ -24,9 +24,12 @@ const CountryList = () => {
         current_page: 0,
         total_items: 0,
         total_pages: 0,
+        per_page: 0,
     })
 
-    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+    const permissions = useSelector((state) => state.auth.permissions);
 
     useEffect(() => {
         if (isLoggedIn === false) {
@@ -40,17 +43,17 @@ const CountryList = () => {
         return userService.getCountries(paginated, current_page).then(
             (data) => {
                 setCountry(data.data.response_data);
-                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, });
+                setPage({ ...page, current_page: data.data.current_page, total_items: data.data.total_items, total_pages: data.data.total_pages, per_page: data.data.per_page });
             },
             (error) => {
                 const message =
                     (error.response && error.response.data && error.response.data.response_message) || error.message || error.toString();
                 addToast(ToastMessage(message, 'danger'));
-                if(error.response.data.response_status == 401){
+                if (error.response.data.response_status == 401) {
                     localStorage.removeItem("user");
                     navigate('/login');
                     window.location.reload();
-                };
+                }
                 return message;
             }
         );
@@ -134,8 +137,20 @@ const CountryList = () => {
 
     const paginateRender = () => {
         if (country.length > 0) {
-            return (<Paginate data={country} page={page} handle={handlePaginate}/>);
+            return (<Paginate data={country} page={page} handle={handlePaginate} />);
         }
+    }
+
+    const isAdd = () => {
+        return !permissions.includes("ADD_COUNTRY");
+    }
+
+    const isEdit = () => {
+        return !permissions.includes("EDIT_COUNTRY");
+    }
+
+    const isDelete = () => {
+        return !permissions.includes("DELETE_COUNTRY");
     }
 
     return (
@@ -143,12 +158,12 @@ const CountryList = () => {
             <CToaster ref={toaster} push={toast} placement="top-center" />
             <CTable responsive hover >
                 <CTableHead>
-                <CTableRow>
+                    <CTableRow>
                         {columns.map((val, key) => {
                             if (key == columns.length - 1) {
                                 return (
                                     <CTableHeaderCell key="add_button">
-                                        <CButton type="button" color="success" variant="outline" onClick={() => handleAdd()}>
+                                        <CButton type="button" color="success" variant="outline" disabled={isAdd()} onClick={() => handleAdd()}>
                                             Add
                                         </CButton>
                                     </CTableHeaderCell>
@@ -169,7 +184,7 @@ const CountryList = () => {
                     {country.map((val, key) => {
                         return (
                             <CTableRow key={key}>
-                                <CTableDataCell>{(page.current_page) * Math.ceil(page.total_items / page.total_pages) + (key + 1)}</CTableDataCell>
+                                <CTableDataCell>{(page.current_page * page.per_page) + (key + 1)}</CTableDataCell>
                                 <CTableDataCell>{val.country_name}</CTableDataCell>
                                 <CTableDataCell>{val.country_abbr}</CTableDataCell>
                                 <CTableDataCell>{val.country_code}</CTableDataCell>
@@ -177,10 +192,10 @@ const CountryList = () => {
                                     <CBadge color={getBadge(val.status)}>{getstatus(val.status)}</CBadge>
                                 </CTableDataCell>
                                 <CTableDataCell>
-                                    <CButton size="sm" color="primary" className="ml-1" onClick={() => handleEdit(val.id)}>
+                                    <CButton size="sm" color="primary" className="ml-1" disabled={isEdit()} onClick={() => handleEdit(val.id)}>
                                         Edit
                                     </CButton>
-                                    <CButton size="sm" color="danger" className="ml-1" onClick={() => handleDelete(key, val.id)}>
+                                    <CButton size="sm" color="danger" className="ml-1" disabled={isDelete()} onClick={() => handleDelete(key, val.id)}>
                                         Delete
                                     </CButton>
                                 </CTableDataCell>

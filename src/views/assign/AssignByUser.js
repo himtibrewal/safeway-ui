@@ -19,6 +19,7 @@ const AssignByUser = () => {
         user_name: "",
         email: "",
         phone: "",
+        is_partner: false
     });
 
     const [vehicle, setVehicle] = useState({
@@ -294,7 +295,7 @@ const AssignByUser = () => {
                             <CFormInput type="text" id="username" key="username" placeholder='User Name' onChange={onChangeUserName} value={user.user_name} />
                         </CTableHeaderCell>
                         <CTableHeaderCell sm={10}>
-                            <CFormInput type="text" id="email" key="email" placeholder='User Phone' onChange={onChangeEmail} value={user.email} />
+                            <CFormInput type="text" id="email" key="email" placeholder='User Email' onChange={onChangeEmail} value={user.email} />
                         </CTableHeaderCell>
                         <CTableHeaderCell sm={10}>
                             <CFormInput type="text" id="phone" key="phone" placeholder='User Phone' onChange={onChangePhone} value={user.phone} />

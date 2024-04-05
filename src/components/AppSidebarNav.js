@@ -1,10 +1,13 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useSelector, useDispatch } from 'react-redux';
+
 
 import { CBadge } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
+  const permissions =   useSelector((state) => state.auth.permissions);
   const location = useLocation()
   const navLink = (name, icon, badge, indent = false) => {
     return (
@@ -27,20 +30,22 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navItem = (item, index, indent = false) => {
-    const { component, name, badge, icon, ...rest } = item
+    const { component, name, badge, code, icon, ...rest } = item
     const Component = component
-    return (
-      <Component
-        {...(rest.to &&
-          !rest.items && {
-            component: NavLink,
-          })}
-        key={index}
-        {...rest}
-      >
-        {navLink(name, icon, badge, indent)}
-      </Component>
-    )
+    if(permissions.includes(code)){
+      return (
+        <Component
+          {...(rest.to &&
+            !rest.items && {
+              component: NavLink,
+            })}
+          key={index}
+          {...rest}
+        >
+          {navLink(name, icon, badge, indent)}
+        </Component>
+      )
+    }
   }
   const navGroup = (item, index) => {
     const { component, name, icon, items, to, ...rest } = item

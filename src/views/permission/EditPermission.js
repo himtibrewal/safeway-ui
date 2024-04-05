@@ -24,7 +24,9 @@ const PermissionEdit = () => {
 
     const id = searchParams.get('id');
 
-    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn)
+    const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+    const permissions = useSelector((state) => state.auth.permissions);
 
     const [permission, setPermission] = useState({
         permission_name: "",
@@ -112,6 +114,13 @@ const PermissionEdit = () => {
         setPermission({ ...permission, status: e.target.value, });
     };
 
+    const isAddEdit = () => {
+        if(isEdit){
+            return !permissions.includes("EDIT_PERMISSION");
+        }
+        return !permissions.includes("ADD_PERMISSION");
+    }
+
     return (
         <>
             <CForm className="row g-3" onSubmit={handleSubmit}>
@@ -133,7 +142,7 @@ const PermissionEdit = () => {
                     </CFormSelect>
                 </CCol>
                 <CCol xs={12}>
-                    <CButton type="submit" color="success" variant="outline" className="me-2">{isEdit ? 'UPDATE' : 'ADD'}</CButton>
+                    <CButton type="submit" color="success" variant="outline" className="me-2" disabled={isAddEdit()} >{isEdit ? 'UPDATE' : 'ADD'}</CButton>
                 </CCol>
             </CForm>
             <CToaster ref={toaster} push={toast} placement="top-center" />

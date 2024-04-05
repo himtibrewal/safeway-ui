@@ -141,7 +141,8 @@ class UserService {
                 id: user.user_id,
                 username: user.user_name,
                 phone: user.phone,
-                email: user.email
+                email: user.email,
+                is_partner: user.is_partner,
             }
         });
     }
@@ -290,6 +291,42 @@ class UserService {
 
     deleteRole(id) {
         return axios.delete(API_URL() + '/admin/role/' + id, {
+            headers: authHeader()
+        });
+    }
+
+    // QR CODE
+
+    getQrCodes(paginated, page) {
+        return axios.get(API_URL() + '/qrcode', {
+            headers: authHeader(),
+            params: {
+                paginated: paginated,
+                page: page,
+            },
+        });
+    }
+
+    getQrCode(id) {
+        return axios.get(API_URL() + '/qrcode/' + id, {
+            headers: authHeader()
+        });
+    }
+
+    createQrCode(data) {
+        return axios.post(API_URL() + '/qrcode', data, {
+            headers: authHeader()
+        });
+    }
+
+    editQrCode(id, data) {
+        return axios.put(API_URL() + '/qrcode/' + id, data, {
+            headers: authHeader()
+        });
+    }
+
+    deleteQrCode(id) {
+        return axios.delete(API_URL() + '/qrcode/' + id, {
             headers: authHeader()
         });
     }
