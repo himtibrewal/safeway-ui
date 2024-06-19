@@ -1,5 +1,5 @@
 const API_URL = () => {
-     return "http://localhost:8080";
+     return "http://127.0.0.1:8080";
 }
 
 export default API_URL
